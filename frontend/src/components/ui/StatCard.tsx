@@ -11,28 +11,22 @@ interface StatCardProps {
 
 const colorMap = {
   blue: {
-    bg: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
-    iconBg: 'bg-blue-600 text-white shadow-blue-500/30',
+    iconBg: 'bg-blue-600 text-white shadow-lg shadow-blue-500/40 glow-brand',
   },
   indigo: {
-    bg: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20',
-    iconBg: 'bg-indigo-600 text-white shadow-indigo-500/30',
+    iconBg: 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/40',
   },
   emerald: {
-    bg: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
-    iconBg: 'bg-emerald-600 text-white shadow-emerald-500/30',
+    iconBg: 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/40 glow-emerald',
   },
   amber: {
-    bg: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
-    iconBg: 'bg-amber-600 text-white shadow-amber-500/30',
+    iconBg: 'bg-amber-600 text-white shadow-lg shadow-amber-500/40 glow-amber',
   },
   rose: {
-    bg: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20',
-    iconBg: 'bg-rose-600 text-white shadow-rose-500/30',
+    iconBg: 'bg-rose-600 text-white shadow-lg shadow-rose-500/40 glow-rose',
   },
   purple: {
-    bg: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20',
-    iconBg: 'bg-purple-600 text-white shadow-purple-500/30',
+    iconBg: 'bg-purple-600 text-white shadow-lg shadow-purple-500/40',
   },
 };
 
@@ -46,13 +40,13 @@ export const StatCard: React.FC<StatCardProps> = ({
   const styles = colorMap[colorScheme];
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-700/80 shadow-sm hover:shadow-md transition-all group overflow-hidden min-w-0">
+    <div className="glass-card rounded-2xl p-5 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 group overflow-hidden min-w-0">
       <div className="flex items-start justify-between gap-3 min-w-0">
         <div className="min-w-0 flex-1">
-          <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 tracking-wider uppercase truncate block">
+          <span className="text-[11px] font-extrabold text-slate-500 dark:text-slate-400 tracking-wider uppercase truncate block">
             {title}
           </span>
-          <h3 className="text-lg sm:text-xl xl:text-2xl font-extrabold text-slate-900 dark:text-white mt-1 font-sans tracking-tight truncate" title={String(value)}>
+          <h3 className="text-lg sm:text-xl xl:text-2xl font-extrabold text-slate-900 dark:text-white mt-1 font-sans tracking-tight truncate drop-shadow-sm" title={String(value)}>
             {value}
           </h3>
           {subtitle && (
@@ -61,10 +55,11 @@ export const StatCard: React.FC<StatCardProps> = ({
             </p>
           )}
         </div>
-        <div className={`p-3 rounded-xl shadow-lg transition-transform group-hover:scale-105 shrink-0 ${styles.iconBg}`}>
+        <div className={`p-3.5 rounded-2xl transition-transform duration-300 group-hover:scale-110 shrink-0 border border-white/20 ${styles.iconBg}`}>
           <Icon className="w-5 h-5" />
         </div>
       </div>
     </div>
   );
 };
+

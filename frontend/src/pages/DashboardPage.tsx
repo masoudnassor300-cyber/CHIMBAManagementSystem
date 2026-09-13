@@ -6,6 +6,7 @@ import { Skeleton } from '../components/ui/Skeleton';
 import { CreateClientModal } from '../components/clients/CreateClientModal';
 import { CreateFileModal } from '../components/files/CreateFileModal';
 import { CreateDocumentModal } from '../components/documents/CreateDocumentModal';
+import { useTheme } from '../context/ThemeContext';
 import { 
   Users, 
   FolderKanban, 
@@ -38,8 +39,13 @@ import {
 const PIE_COLORS = ['#2563eb', '#dc2626', '#059669', '#d97706'];
 
 export const DashboardPage: React.FC = () => {
+  const { theme } = useTheme();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Dynamic Theme Colors for Charts
+  const gridStroke = theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(15, 23, 42, 0.08)';
+  const axisTextColor = theme === 'dark' ? '#94a3b8' : '#64748b';
 
   // Modals state
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
@@ -81,10 +87,10 @@ export const DashboardPage: React.FC = () => {
   };
 
   const pieData = stats
-    ? Object.entries(stats.transportTypeBreakdown).map(([name, value]) => ({
-        name,
-        value,
-      }))
+    ? [
+        { name: 'Tax Invoices (CLL)', value: stats.totalInvoices || 0 },
+        { name: 'Debit Notes (DN)', value: stats.totalDebitNotes || 0 },
+      ]
     : [];
 
   const totalBilled = (stats?.totalInvoices || 0) + (stats?.totalDebitNotes || 0);
@@ -135,19 +141,19 @@ export const DashboardPage: React.FC = () => {
           <div className="flex flex-col sm:flex-row lg:flex-col gap-3 shrink-0">
             <button
               onClick={openClientModal}
-              className="px-4 py-2.5 bg-white/15 hover:bg-white/25 dark:bg-slate-800/80 dark:hover:bg-slate-700/80 text-white rounded-xl text-xs font-semibold flex items-center gap-2.5 border border-white/20 dark:border-slate-700/80 backdrop-blur-md transition-all hover:scale-105 shadow-md"
+              className="px-4 py-2.5 bg-white/20 hover:bg-white/30 dark:bg-white/10 dark:hover:bg-white/20 text-white rounded-xl text-xs font-bold flex items-center gap-2.5 border border-white/30 dark:border-white/20 backdrop-blur-md transition-all hover:scale-105 shadow-lg shadow-black/10"
             >
-              <Plus className="w-4 h-4 text-white dark:text-brand-400" /> Add New Client
+              <Plus className="w-4 h-4 text-white" /> Add New Client
             </button>
             <button
               onClick={openFileModal}
-              className="px-4 py-2.5 bg-white/15 hover:bg-white/25 dark:bg-slate-800/80 dark:hover:bg-slate-700/80 text-white rounded-xl text-xs font-semibold flex items-center gap-2.5 border border-white/20 dark:border-slate-700/80 backdrop-blur-md transition-all hover:scale-105 shadow-md"
+              className="px-4 py-2.5 bg-white/20 hover:bg-white/30 dark:bg-white/10 dark:hover:bg-white/20 text-white rounded-xl text-xs font-bold flex items-center gap-2.5 border border-white/30 dark:border-white/20 backdrop-blur-md transition-all hover:scale-105 shadow-lg shadow-black/10"
             >
-              <Plus className="w-4 h-4 text-white dark:text-indigo-400" /> Open Job File
+              <Plus className="w-4 h-4 text-white" /> Open Job File
             </button>
             <button
               onClick={openDocModal}
-              className="px-5 py-2.5 bg-white text-brand-700 hover:bg-slate-100 dark:bg-gradient-to-r dark:from-brand-600 dark:to-indigo-600 dark:hover:from-brand-500 dark:hover:to-indigo-500 dark:text-white rounded-xl text-xs font-bold flex items-center gap-2.5 shadow-xl transition-all hover:scale-105"
+              className="px-5 py-2.5 bg-white/90 hover:bg-white text-brand-700 dark:bg-gradient-to-r dark:from-brand-600 dark:to-indigo-600 dark:hover:from-brand-500 dark:hover:to-indigo-500 dark:text-white rounded-xl text-xs font-extrabold flex items-center gap-2.5 shadow-xl backdrop-blur-md transition-all hover:scale-105 border border-white/40"
             >
               <Plus className="w-4 h-4" /> Issue Invoice / Debit Note
             </button>
@@ -196,10 +202,10 @@ export const DashboardPage: React.FC = () => {
       {/* Interactive Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Monthly Financial Trend Area Chart */}
-        <div className="lg:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm">
+        <div className="lg:col-span-2 backdrop-blur-md bg-white/10 dark:bg-slate-900/40 border border-white/20 dark:border-slate-800/50 rounded-2xl shadow-xl p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-brand-500" /> Revenue & Billing Trends
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">Monthly invoice vs debit note financial progression (TSH)</p>
@@ -211,43 +217,76 @@ export const DashboardPage: React.FC = () => {
           ) : (
             <div className="h-72 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={stats?.monthlyTrends || []} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <AreaChart data={stats?.monthlyTrends || []} margin={{ top: 15, right: 15, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorInvoices" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#2563eb" stopOpacity={0.4} />
-                      <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
+                      <stop offset="0%" stopColor="#2563eb" stopOpacity={0.6} />
+                      <stop offset="100%" stopColor="#2563eb" stopOpacity={0.0} />
                     </linearGradient>
                     <linearGradient id="colorDebits" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#dc2626" stopOpacity={0.4} />
-                      <stop offset="95%" stopColor="#dc2626" stopOpacity={0} />
+                      <stop offset="0%" stopColor="#dc2626" stopOpacity={0.6} />
+                      <stop offset="100%" stopColor="#dc2626" stopOpacity={0.0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} />
+                  <CartesianGrid stroke={gridStroke} strokeDasharray="4 4" vertical={false} />
+                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: axisTextColor }} axisLine={false} tickLine={false} />
                   <YAxis
-                    tick={{ fontSize: 11, fill: '#64748b' }}
+                    tick={{ fontSize: 11, fill: axisTextColor }}
                     axisLine={false}
+                    tickLine={false}
                     tickFormatter={(v) => `${(v / 1000000).toFixed(1)}M`}
                   />
                   <Tooltip
-                    formatter={(val: number) => [`TSH ${val.toLocaleString()}`, '']}
-                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                    content={({ active, payload, label }) => {
+                      if (active && payload && payload.length) {
+                        return (
+                          <div className="backdrop-blur-lg bg-white/70 dark:bg-slate-900/70 border border-white/30 dark:border-slate-700/30 p-3 rounded-xl shadow-lg text-xs space-y-1.5">
+                            <p className="font-extrabold text-slate-900 dark:text-white border-b border-slate-900/10 dark:border-white/10 pb-1 mb-1">{label}</p>
+                            {payload.map((entry: any, idx: number) => (
+                              <div key={idx} className="flex items-center justify-between gap-4 font-bold" style={{ color: entry.color }}>
+                                <span>{entry.name}:</span>
+                                <span className="font-mono">TSH {Number(entry.value).toLocaleString()}</span>
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
                   />
-                  <Area type="monotone" dataKey="invoices" name="Invoices" stroke="#2563eb" strokeWidth={3} fillOpacity={1} fill="url(#colorInvoices)" />
-                  <Area type="monotone" dataKey="debitNotes" name="Debit Notes" stroke="#dc2626" strokeWidth={3} fillOpacity={1} fill="url(#colorDebits)" />
+                  <Area
+                    type="monotone"
+                    dataKey="invoices"
+                    name="Invoices"
+                    stroke="#2563eb"
+                    strokeWidth={4}
+                    fillOpacity={1}
+                    fill="url(#colorInvoices)"
+                    activeDot={{ r: 6, strokeWidth: 2, stroke: '#ffffff', fill: '#2563eb' }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="debitNotes"
+                    name="Debit Notes"
+                    stroke="#dc2626"
+                    strokeWidth={4}
+                    fillOpacity={1}
+                    fill="url(#colorDebits)"
+                    activeDot={{ r: 6, strokeWidth: 2, stroke: '#ffffff', fill: '#dc2626' }}
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           )}
         </div>
 
-        {/* Transport Type Distribution Doughnut Chart */}
-        <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm flex flex-col justify-between">
+        {/* Revenue Ratio Breakdown Doughnut Chart */}
+        <div className="backdrop-blur-md bg-white/10 dark:bg-slate-900/40 border border-white/20 dark:border-slate-800/50 rounded-2xl shadow-xl p-6 flex flex-col justify-between">
           <div>
-            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <Activity className="w-5 h-5 text-indigo-500" /> Mode of Transport
+            <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+              <Activity className="w-5 h-5 text-indigo-500" /> Revenue Ratio Share
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Distribution across Sea, Airport & Road</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Tax Invoices vs Debit Notes Distribution (TSH)</p>
           </div>
 
           {loading ? (
@@ -260,17 +299,34 @@ export const DashboardPage: React.FC = () => {
                     data={pieData}
                     cx="50%"
                     cy="50%"
-                    innerRadius={50}
+                    innerRadius={55}
                     outerRadius={80}
-                    paddingAngle={4}
+                    paddingAngle={6}
+                    cornerRadius={6}
                     dataKey="value"
                   >
                     {pieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={PIE_COLORS[index % PIE_COLORS.length]}
+                      />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(val: number) => [`${val} Documents`, 'Count']} />
-                  <Legend wrapperStyle={{ fontSize: '11px' }} />
+                  <Tooltip 
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        const data = payload[0];
+                        return (
+                          <div className="backdrop-blur-lg bg-white/70 dark:bg-slate-900/70 border border-white/30 dark:border-slate-700/30 p-3 rounded-xl shadow-lg text-xs font-bold text-slate-900 dark:text-white">
+                            <p className="font-extrabold mb-1" style={{ color: data.payload.fill }}>{data.name}</p>
+                            <p className="font-mono">TSH {Number(data.value).toLocaleString()}</p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -279,20 +335,22 @@ export const DashboardPage: React.FC = () => {
       </div>
 
       {/* Recent Activity Stream */}
-      <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm">
+      <div className="glass-panel p-6 rounded-3xl">
         <h3 className="text-base font-bold text-slate-900 dark:text-white mb-4 flex items-center justify-between">
           <span>Recent Operational Log</span>
-          <span className="text-xs font-semibold text-brand-600 dark:text-brand-400">Live System Feed</span>
+          <span className="text-xs font-semibold text-brand-600 dark:text-brand-400 bg-brand-500/10 px-2.5 py-1 rounded-full border border-brand-500/20">
+            Live System Feed
+          </span>
         </h3>
 
-        <div className="divide-y divide-slate-100 dark:divide-slate-700/60">
+        <div className="divide-y divide-slate-200/50 dark:divide-slate-700/50">
           {loading ? (
             Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-12 my-2" />)
           ) : (
             stats?.recentActivities.map((act, idx) => (
-              <div key={idx} className="py-3 flex items-center justify-between text-xs hover:bg-slate-50/50 dark:hover:bg-slate-700/30 px-2 rounded-lg transition-colors">
+              <div key={idx} className="py-3 flex items-center justify-between text-xs hover:bg-white/40 dark:hover:bg-slate-800/40 px-3 rounded-xl transition-all duration-200 backdrop-blur-sm">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-slate-100 dark:bg-slate-700 text-brand-600 dark:text-brand-400 rounded-lg">
+                  <div className="p-2 bg-gradient-to-br from-brand-600 to-indigo-600 text-white rounded-xl shadow-md shadow-brand-500/20">
                     <ArrowUpRight className="w-4 h-4" />
                   </div>
                   <div>

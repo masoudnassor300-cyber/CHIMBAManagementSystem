@@ -34,6 +34,21 @@ export interface DocumentItem {
   lineTotal: number;
 }
 
+export interface PaymentRecord {
+  id: number;
+  fileId: number;
+  fileCode?: string;
+  documentId: number;
+  documentNumber: string;
+  documentType: string;
+  clientName?: string;
+  amount: number;
+  method?: string;
+  paymentReference?: string;
+  paymentDate: string;
+  createdAt?: string;
+}
+
 export interface Document {
   id: number;
   documentNumber: string;
@@ -54,6 +69,9 @@ export interface Document {
   total: number;
   paidAmount: number;
   balance: number;
+  status: 'UNPAID' | 'PARTIALLY_PAID' | 'PAID';
+  paymentsCount?: number;
+  paymentHistory?: PaymentRecord[];
   createdAt?: string;
   jobNumber?: string;
   awbBl?: string;

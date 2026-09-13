@@ -17,6 +17,20 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
+import com.chimba.dto.PaymentDto;
+import com.chimba.model.Payment;
+import com.chimba.repository.PaymentRepository;
+import com.chimba.repository.CargoFileRepository;
+import com.chimba.repository.ClientRepository;
+import com.chimba.repository.DocumentItemRepository;
+import com.chimba.repository.DocumentRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,17 +41,20 @@ public class DocumentService {
     private final DocumentItemRepository documentItemRepository;
     private final CargoFileRepository cargoFileRepository;
     private final ClientRepository clientRepository;
+    private final PaymentRepository paymentRepository;
 
     public DocumentService(
             DocumentRepository documentRepository,
             DocumentItemRepository documentItemRepository,
             CargoFileRepository cargoFileRepository,
-            ClientRepository clientRepository
+            ClientRepository clientRepository,
+            PaymentRepository paymentRepository
     ) {
         this.documentRepository = documentRepository;
         this.documentItemRepository = documentItemRepository;
         this.cargoFileRepository = cargoFileRepository;
         this.clientRepository = clientRepository;
+        this.paymentRepository = paymentRepository;
     }
 
     public List<DocumentDto> filterDocuments(
@@ -198,10 +215,46 @@ public class DocumentService {
         dto.setTransportType(doc.getTransportType());
         dto.setSubtotal(doc.getSubtotal());
         dto.setVat(doc.getVat());
-        dto.setTotal(doc.getTotal());
-        dto.setPaidAmount(doc.getPaidAmount());
-        dto.setBalance(doc.getBalance());
+        BigDecimal docTotal = doc.getTotal() != null ? doc.getTotal() : BigDecimal.ZERO;
+        dto.setTotal(docTotal);
         dto.setCreatedAt(doc.getCreatedAt());
+
+        // Calculate document-specific payments from Payments table
+        BigDecimal paidSum = paymentRepository.sumPaidAmountByDocumentId(doc.getId());
+        if (paidSum == null) paidSum = BigDecimal.ZERO;
+        dto.setPaidAmount(paidSum);
+
+        BigDecimal balance = docTotal.subtract(paidSum);
+        if (balance.compareTo(BigDecimal.ZERO) < 0) {
+            balance = BigDecimal.ZERO;
+        }
+        dto.setBalance(balance);
+
+        if (paidSum.compareTo(BigDecimal.ZERO) == 0) {
+            dto.setStatus("UNPAID");
+        } else if (paidSum.compareTo(docTotal) >= 0) {
+            dto.setStatus("PAID");
+        } else {
+            dto.setStatus("PARTIALLY_PAID");
+        }
+
+        List<Payment> paymentEntities = paymentRepository.findByDocumentIdOrderByPaymentDateDesc(doc.getId());
+        dto.setPaymentsCount(paymentEntities.size());
+        List<PaymentDto> history = paymentEntities.stream().map(p -> {
+            PaymentDto pd = new PaymentDto();
+            pd.setId(p.getId());
+            pd.setFileId(p.getFileId());
+            pd.setDocumentId(p.getDocument().getId());
+            pd.setDocumentNumber(doc.getDocumentNumber());
+            pd.setDocumentType(doc.getDocumentType());
+            pd.setAmount(p.getAmount());
+            pd.setMethod(p.getMethod());
+            pd.setPaymentReference(p.getPaymentReference());
+            pd.setPaymentDate(p.getPaymentDate());
+            pd.setCreatedAt(p.getCreatedAt());
+            return pd;
+        }).collect(Collectors.toList());
+        dto.setPaymentHistory(history);
 
         if (doc.getCargoFile() != null) {
             dto.setFileId(doc.getCargoFile().getId());

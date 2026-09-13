@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Client, CargoFile, Document, DashboardStats, SummaryData } from '../types';
+import { Client, CargoFile, Document, DashboardStats, SummaryData, PaymentRecord } from '../types';
 
 const API_BASE = '/api';
 
@@ -70,14 +70,38 @@ export const createDocument = async (data: {
   return res.data;
 };
 
-export const getPayments = async (): Promise<{ totalLeftToCollect: number; documents: Document[] }> => {
-  const res = await api.get('/payments');
+export interface PaymentsOverviewResponse {
+  totalLeftToCollect: number;
+  totalInvoicesValue: number;
+  totalDebitNotesValue: number;
+  totalCollectedValue: number;
+  documents: Document[];
+  recentPayments?: PaymentRecord[];
+}
+
+export const getPayments = async (): Promise<PaymentsOverviewResponse> => {
+  const res = await api.get<PaymentsOverviewResponse>('/payments');
+  return res.data;
+};
+
+export const getPaymentHistory = async (documentId: number): Promise<PaymentRecord[]> => {
+  const res = await api.get<PaymentRecord[]>(`/payments/history/${documentId}`);
+  return res.data;
+};
+
+export const recordPayment = async (data: {
+  documentId: number;
+  paidAmount: number;
+  paymentDate?: string;
+  method?: string;
+  paymentReference?: string;
+}): Promise<Document> => {
+  const res = await api.post<Document>('/payments/record', data);
   return res.data;
 };
 
 export const markPayment = async (documentId: number, paidAmount: number): Promise<Document> => {
-  const res = await api.post<Document>('/payments/mark-paid', { documentId, paidAmount });
-  return res.data;
+  return recordPayment({ documentId, paidAmount });
 };
 
 export const getSummary = async (filters?: {

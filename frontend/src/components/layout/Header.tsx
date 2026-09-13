@@ -10,9 +10,9 @@ export const Header: React.FC<HeaderProps> = () => {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <header className="h-16 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 flex items-center justify-between sticky top-0 z-30 transition-colors">
+    <header className="h-16 glass-header px-6 flex items-center justify-between sticky top-0 z-30 transition-all">
       <div className="flex items-center gap-4">
-        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-700/60 rounded-full border border-slate-200 dark:border-slate-600 text-xs text-slate-600 dark:text-slate-300 font-medium">
+        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-slate-900/5 dark:bg-white/5 backdrop-blur-md rounded-full border border-slate-900/10 dark:border-white/10 text-xs text-slate-600 dark:text-slate-300 font-medium shadow-sm">
           <ShieldCheck className="w-4 h-4 text-emerald-500" />
           <span>CHIMBA LOGISTICS LTD • TIN: 140-456-160</span>
         </div>
@@ -25,30 +25,30 @@ export const Header: React.FC<HeaderProps> = () => {
           <input
             type="text"
             placeholder="Search system..."
-            className="w-full pl-9 pr-4 py-1.5 text-xs bg-slate-100 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white transition-all"
+            className="w-full pl-9 pr-4 py-1.5 text-xs glass-input rounded-xl focus:outline-none dark:text-white transition-all shadow-inner"
           />
         </div>
 
         {/* Theme Toggler */}
         <button
           onClick={toggleTheme}
-          className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors relative"
+          className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-900/5 dark:hover:bg-white/10 rounded-xl transition-all relative backdrop-blur-md border border-transparent hover:border-slate-900/10 dark:hover:border-white/10"
           title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}
         >
           {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5 text-amber-400" />}
         </button>
 
         {/* Notifications Icon */}
-        <button className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors relative">
+        <button className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-900/5 dark:hover:bg-white/10 rounded-xl transition-all relative backdrop-blur-md border border-transparent hover:border-slate-900/10 dark:hover:border-white/10">
           <Bell className="w-5 h-5" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-brand-500 rounded-full"></span>
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-brand-500 rounded-full shadow-sm shadow-brand-500"></span>
         </button>
 
-        <div className="h-6 w-[1px] bg-slate-200 dark:bg-slate-700 mx-1"></div>
+        <div className="h-6 w-[1px] bg-slate-900/10 dark:bg-white/10 mx-1"></div>
 
         {/* User Profile Pill */}
         <div className="flex items-center gap-2 pl-2">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-brand-600 to-indigo-500 text-white font-bold text-xs flex items-center justify-center shadow-sm">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 text-white font-bold text-xs flex items-center justify-center shadow-lg shadow-brand-500/25 border border-white/20">
             CL
           </div>
           <div className="hidden lg:block text-left">
@@ -60,3 +60,4 @@ export const Header: React.FC<HeaderProps> = () => {
     </header>
   );
 };
+

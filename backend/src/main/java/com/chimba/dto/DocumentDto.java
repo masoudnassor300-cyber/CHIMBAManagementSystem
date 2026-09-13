@@ -25,6 +25,9 @@ public class DocumentDto {
     private BigDecimal total;
     private BigDecimal paidAmount;
     private BigDecimal balance;
+    private String status; // UNPAID, PARTIALLY_PAID, PAID
+    private Integer paymentsCount = 0;
+    private List<PaymentDto> paymentHistory;
     private LocalDateTime createdAt;
 
     // File details for print
@@ -95,6 +98,15 @@ public class DocumentDto {
 
     public BigDecimal getBalance() { return balance; }
     public void setBalance(BigDecimal balance) { this.balance = balance; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public Integer getPaymentsCount() { return paymentsCount; }
+    public void setPaymentsCount(Integer paymentsCount) { this.paymentsCount = paymentsCount; }
+
+    public List<PaymentDto> getPaymentHistory() { return paymentHistory; }
+    public void setPaymentHistory(List<PaymentDto> paymentHistory) { this.paymentHistory = paymentHistory; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

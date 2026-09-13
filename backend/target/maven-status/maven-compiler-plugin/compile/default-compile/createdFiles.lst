@@ -1,6 +1,7 @@
 com\chimba\service\PaymentService.class
 com\chimba\dto\PaymentRequest.class
 com\chimba\repository\DocumentItemRepository.class
+com\chimba\repository\PaymentRepository.class
 com\chimba\service\ClientService.class
 com\chimba\dto\DocumentDto.class
 com\chimba\service\SummaryService.class
@@ -14,6 +15,7 @@ com\chimba\service\DashboardService.class
 com\chimba\dto\DashboardStatsDto$MonthlyTrendDto.class
 com\chimba\model\DocumentItem.class
 com\chimba\dto\CargoFileDto.class
+com\chimba\dto\PaymentDto.class
 com\chimba\repository\CargoFileRepository.class
 com\chimba\dto\DashboardStatsDto$RecentActivityDto.class
 com\chimba\controller\SummaryController.class
@@ -32,3 +34,4 @@ com\chimba\controller\DashboardController.class
 com\chimba\dto\DashboardStatsDto.class
 com\chimba\controller\DocumentController.class
 com\chimba\model\CargoFile.class
+com\chimba\model\Payment.class

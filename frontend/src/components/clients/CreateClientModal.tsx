@@ -68,7 +68,7 @@ export const CreateClientModal: React.FC<CreateClientModalProps> = ({
               required
               value={formData.clientId}
               onChange={(e) => setFormData({ ...formData, clientId: e.target.value })}
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:outline-none dark:text-white"
+              className="w-full px-3 py-2 text-xs glass-input rounded-lg focus:ring-2 focus:ring-brand-500 focus:outline-none dark:text-white"
             />
           </div>
 
@@ -82,7 +82,7 @@ export const CreateClientModal: React.FC<CreateClientModalProps> = ({
               required
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:outline-none dark:text-white"
+              className="w-full px-3 py-2 text-xs glass-input rounded-lg focus:ring-2 focus:ring-brand-500 focus:outline-none dark:text-white"
             />
           </div>
         </div>
@@ -96,7 +96,7 @@ export const CreateClientModal: React.FC<CreateClientModalProps> = ({
             placeholder="P.O. BOX ..."
             value={formData.address}
             onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-            className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:outline-none dark:text-white"
+            className="w-full px-3 py-2 text-xs glass-input rounded-lg focus:ring-2 focus:ring-brand-500 focus:outline-none dark:text-white"
           />
         </div>
 
@@ -110,7 +110,7 @@ export const CreateClientModal: React.FC<CreateClientModalProps> = ({
               placeholder="e.g. DAR ES SALAAM"
               value={formData.city}
               onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:outline-none dark:text-white"
+              className="w-full px-3 py-2 text-xs glass-input rounded-lg focus:ring-2 focus:ring-brand-500 focus:outline-none dark:text-white"
             />
           </div>
 
@@ -123,7 +123,7 @@ export const CreateClientModal: React.FC<CreateClientModalProps> = ({
               placeholder="client@company.com"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:outline-none dark:text-white"
+              className="w-full px-3 py-2 text-xs glass-input rounded-lg focus:ring-2 focus:ring-brand-500 focus:outline-none dark:text-white"
             />
           </div>
 
@@ -136,23 +136,23 @@ export const CreateClientModal: React.FC<CreateClientModalProps> = ({
               placeholder="xxx-xxx-xxx"
               value={formData.tin}
               onChange={(e) => setFormData({ ...formData, tin: e.target.value })}
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:outline-none dark:text-white"
+              className="w-full px-3 py-2 text-xs glass-input rounded-lg focus:ring-2 focus:ring-brand-500 focus:outline-none dark:text-white"
             />
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+        <div className="flex justify-end gap-3 pt-4 border-t border-slate-900/10 dark:border-white/10">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+            className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-900/5 dark:bg-white/5 hover:bg-slate-900/10 dark:hover:bg-white/10 rounded-xl transition-all border border-slate-900/10 dark:border-white/10 backdrop-blur-sm"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="px-5 py-2 text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-lg shadow-md shadow-brand-600/20 transition-all flex items-center gap-2 disabled:opacity-50"
+            className="px-5 py-2 text-xs font-bold text-white bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 rounded-xl shadow-lg shadow-brand-500/25 transition-all flex items-center gap-2 disabled:opacity-50 border border-white/20"
           >
             <UserPlus className="w-4 h-4" />
             <span>{loading ? 'Saving...' : 'Save Client'}</span>
@@ -162,3 +162,4 @@ export const CreateClientModal: React.FC<CreateClientModalProps> = ({
     </Modal>
   );
 };
+

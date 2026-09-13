@@ -1,6 +1,6 @@
 import React from 'react';
 import { Document } from '../../types';
-import { Printer, Download, X } from 'lucide-react';
+import { Printer, X } from 'lucide-react';
 import logoPng from '../../assets/logo.png';
 
 interface PrintDocumentViewProps {
@@ -18,26 +18,30 @@ export const PrintDocumentView: React.FC<PrintDocumentViewProps> = ({ document: 
 
   return (
     <div className="print-overlay-container fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-md flex justify-center p-4 sm:p-8">
-      {/* Printable Wrapper */}
-      <div className="print-document-container bg-white text-slate-900 w-full max-w-[210mm] min-h-[297mm] p-8 shadow-2xl rounded-sm flex flex-col justify-between my-auto relative">
-        {/* Floating Action Controls (Hidden when printing) */}
-        <div className="no-print absolute top-4 right-4 flex items-center gap-2">
-          <button
-            onClick={handlePrint}
-            className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-xs font-semibold flex items-center gap-2 shadow-lg transition-all"
-          >
-            <Printer className="w-4 h-4" /> Print Document
-          </button>
-          <button
-            onClick={onClose}
-            className="p-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-xs transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
+      <div className="flex flex-col items-center max-w-[210mm] w-full my-auto space-y-3">
+        {/* Floating Top Control Bar (Hidden when printing - completely separate from A4 document) */}
+        <div className="no-print w-full flex items-center justify-between glass-modal p-3.5 rounded-2xl shadow-2xl">
+          <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+            Document Preview: <strong className="text-brand-600 dark:text-brand-400 font-mono">{doc.documentNumber}</strong> ({isInvoice ? 'Tax Invoice' : 'Debit Note'})
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handlePrint}
+              className="px-4 py-2 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white rounded-xl text-xs font-extrabold flex items-center gap-2 shadow-lg shadow-brand-500/25 transition-all border border-white/20"
+            >
+              <Printer className="w-4 h-4" /> Print Document
+            </button>
+            <button
+              onClick={onClose}
+              className="px-3.5 py-2 bg-slate-900/5 dark:bg-white/5 hover:bg-slate-900/10 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all border border-slate-900/10 dark:border-white/10 backdrop-blur-sm"
+            >
+              <X className="w-4 h-4" /> Close
+            </button>
+          </div>
         </div>
 
-        {/* PRINT CONTENT START */}
-        <div className="space-y-4 font-sans text-xs">
+        {/* PRINTABLE A4 DOCUMENT CONTAINER */}
+        <div className="print-document-container bg-white text-slate-900 w-full min-h-[297mm] p-8 shadow-2xl rounded-sm flex flex-col space-y-4 font-sans text-xs">
           {/* Header Block */}
           <div className="flex items-center justify-between border-b-2 border-black pb-4">
             <div className="flex items-center gap-4">
@@ -134,34 +138,40 @@ export const PrintDocumentView: React.FC<PrintDocumentViewProps> = ({ document: 
           </div>
 
           {/* Totals Block */}
-          <div className="flex justify-end pt-2">
-            <div className="w-64 border border-black p-3 space-y-1 bg-slate-50">
-              <div className="flex justify-between font-bold text-sm border-t border-black pt-1">
+          <div className="flex justify-end pt-1">
+            <div className="w-64 border border-black p-2 space-y-1 bg-slate-50">
+              <div className="flex justify-between font-bold text-sm">
                 <span>TOTAL TSH:</span>
                 <span>{doc.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Footer & Signature Block */}
-        <div className="pt-8 border-t-2 border-black mt-auto text-xs space-y-6">
-          <div className="grid grid-cols-2 gap-8">
+          {/* Payment Terms & Bank Details - Positioned directly below table total */}
+          <div className="pt-3 border-t-2 border-black space-y-1">
+            <p className="font-bold text-[10px] uppercase text-black">PAYMENT TERMS & BANK DETAILS</p>
+            <p className="text-[11px] font-bold text-black">Bank: AMANA BANK LTD - MBAGALA BRANCH</p>
+            <p className="text-[11px] font-mono font-bold text-slate-900">Account: 007121821720001 | SWIFT: AMNNTZTZ</p>
+            <p className="text-[11px] font-semibold text-slate-800">Make all cheques payable to: CHIMBA LOGISTICS LTD</p>
+          </div>
+
+          {/* Prepared By & Approved By Signatures */}
+          <div className="pt-6 border-t border-slate-400 grid grid-cols-2 gap-8 text-xs">
+            {/* Left: Prepared By Signature */}
             <div>
-              <p className="font-bold text-[10px] uppercase text-slate-500">PAYMENT TERMS & BANK DETAILS</p>
-              <p className="text-[11px] text-slate-700 mt-1">Payment is due upon receipt of invoice/debit note.</p>
-              <p className="text-[11px] font-semibold text-slate-900">Make all cheques payable to: CHIMBA LOGISTICS LTD</p>
+              <p className="font-bold text-[10px] uppercase text-slate-700">PREPARED BY / ISSUED BY</p>
+              <div className="h-10"></div>
+              <p className="border-t border-black inline-block px-8 pt-1 text-[11px] font-bold">PREPARED BY SIGNATURE</p>
             </div>
-            <div className="text-right space-y-8">
-              <div>
-                <p className="font-bold text-[10px] uppercase text-slate-500">FOR CHIMBA LOGISTICS LTD</p>
-                <div className="h-10"></div>
-                <p className="border-t border-slate-400 inline-block px-8 pt-1 text-[11px] font-bold">AUTHORIZED SIGNATURE</p>
-              </div>
+
+            {/* Right: Approved By Signature */}
+            <div className="text-right">
+              <p className="font-bold text-[10px] uppercase text-slate-700">APPROVED BY (FOR CHIMBA LOGISTICS LTD)</p>
+              <div className="h-10"></div>
+              <p className="border-t border-black inline-block px-8 pt-1 text-[11px] font-bold">APPROVED BY SIGNATURE</p>
             </div>
           </div>
         </div>
-        {/* PRINT CONTENT END */}
       </div>
     </div>
   );

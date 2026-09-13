@@ -156,7 +156,7 @@ export const CreateDocumentModal: React.FC<CreateDocumentModalProps> = ({
             <select
               value={docType}
               onChange={(e) => setDocType(e.target.value as any)}
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:outline-none dark:text-white font-semibold"
+              className="w-full px-3 py-2 text-xs glass-input rounded-lg focus:ring-2 focus:ring-brand-500 focus:outline-none dark:text-white font-semibold"
             >
               <option value="Invoice">Invoice (CLL/...)</option>
               <option value="Debit_Note">Debit Note (DN/...)</option>
@@ -171,7 +171,7 @@ export const CreateDocumentModal: React.FC<CreateDocumentModalProps> = ({
               <select
                 value={transportType}
                 onChange={(e) => setTransportType(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:outline-none dark:text-white"
+                className="w-full px-3 py-2 text-xs glass-input rounded-lg focus:ring-2 focus:ring-brand-500 focus:outline-none dark:text-white"
               >
                 <option value="Airport">Airport</option>
                 <option value="Sea Port">Sea Port</option>
@@ -189,7 +189,7 @@ export const CreateDocumentModal: React.FC<CreateDocumentModalProps> = ({
               required
               value={fileDate}
               onChange={(e) => setFileDate(e.target.value)}
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:outline-none dark:text-white"
+              className="w-full px-3 py-2 text-xs glass-input rounded-lg focus:ring-2 focus:ring-brand-500 focus:outline-none dark:text-white"
             />
           </div>
         </div>
@@ -201,7 +201,7 @@ export const CreateDocumentModal: React.FC<CreateDocumentModalProps> = ({
           </label>
           <div
             onClick={() => setShowFilePicker(!showFilePicker)}
-            className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 rounded-lg cursor-pointer flex justify-between items-center dark:text-white"
+            className="w-full px-3 py-2 text-xs glass-input rounded-lg cursor-pointer flex justify-between items-center dark:text-white"
           >
             <span>
               {selectedFile
@@ -218,7 +218,7 @@ export const CreateDocumentModal: React.FC<CreateDocumentModalProps> = ({
                 placeholder="Type file code or client name..."
                 value={fileSearch}
                 onChange={(e) => setFileSearch(e.target.value)}
-                className="w-full px-3 py-1.5 text-xs bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md mb-2 focus:outline-none dark:text-white"
+                className="w-full px-3 py-1.5 text-xs glass-input rounded-md mb-2 focus:outline-none dark:text-white"
                 autoFocus
               />
               <div className="space-y-1">
@@ -299,7 +299,7 @@ export const CreateDocumentModal: React.FC<CreateDocumentModalProps> = ({
                           value={item.itemName}
                           onChange={(e) => handleItemChange(idx, 'itemName', e.target.value)}
                           placeholder="Item description"
-                          className="w-full px-2 py-1 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded focus:outline-none dark:text-white"
+                          className="w-full px-2 py-1 text-xs glass-input rounded-lg focus:outline-none dark:text-white"
                         />
                       </td>
                       <td className="p-2">
@@ -309,7 +309,7 @@ export const CreateDocumentModal: React.FC<CreateDocumentModalProps> = ({
                           step="0.01"
                           value={item.qty}
                           onChange={(e) => handleItemChange(idx, 'qty', e.target.value)}
-                          className="w-full px-2 py-1 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded focus:outline-none dark:text-white text-center"
+                          className="w-full px-2 py-1 text-xs glass-input rounded-lg focus:outline-none dark:text-white text-center"
                         />
                       </td>
                       <td className="p-2">
@@ -319,7 +319,7 @@ export const CreateDocumentModal: React.FC<CreateDocumentModalProps> = ({
                           step="0.01"
                           value={item.unitPrice}
                           onChange={(e) => handleItemChange(idx, 'unitPrice', e.target.value)}
-                          className="w-full px-2 py-1 text-xs bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded focus:outline-none dark:text-white text-right"
+                          className="w-full px-2 py-1 text-xs glass-input rounded-lg focus:outline-none dark:text-white text-right"
                         />
                       </td>
                       <td className="p-2 text-right font-semibold text-slate-800 dark:text-slate-200">
@@ -341,26 +341,26 @@ export const CreateDocumentModal: React.FC<CreateDocumentModalProps> = ({
             </table>
           </div>
 
-          <div className="flex justify-end items-center gap-4 mt-3 px-2">
-            <span className="text-xs font-semibold text-slate-500 uppercase">Document Total:</span>
-            <span className="text-xl font-extrabold text-brand-600 dark:text-brand-400">
+          <div className="flex justify-end items-center gap-4 mt-3 px-3 py-2.5 bg-slate-900/5 dark:bg-white/5 rounded-xl border border-slate-900/10 dark:border-white/10 backdrop-blur-md">
+            <span className="text-xs font-bold text-slate-500 uppercase">Document Total:</span>
+            <span className="text-xl font-extrabold text-brand-600 dark:text-brand-400 font-mono">
               TSH {calculateGrandTotal().toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+        <div className="flex justify-end gap-3 pt-4 border-t border-slate-900/10 dark:border-white/10">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+            className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-900/5 dark:bg-white/5 hover:bg-slate-900/10 dark:hover:bg-white/10 rounded-xl transition-all border border-slate-900/10 dark:border-white/10 backdrop-blur-sm"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="px-5 py-2 text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-lg shadow-md shadow-brand-600/20 transition-all flex items-center gap-2 disabled:opacity-50"
+            className="px-5 py-2 text-xs font-bold text-white bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 rounded-xl shadow-lg shadow-brand-500/25 transition-all flex items-center gap-2 disabled:opacity-50 border border-white/20"
           >
             <FilePlus className="w-4 h-4" />
             <span>{loading ? 'Generating...' : `Save ${docType === 'Invoice' ? 'Invoice' : 'Debit Note'}`}</span>
@@ -370,3 +370,4 @@ export const CreateDocumentModal: React.FC<CreateDocumentModalProps> = ({
     </Modal>
   );
 };
+

@@ -32,7 +32,19 @@ export default {
       fontFamily: {
         sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
       },
+      backdropBlur: {
+        glass: '12px',
+        'glass-lg': '20px',
+        'glass-xl': '32px',
+      },
+      boxShadow: {
+        glass: '0 8px 32px 0 rgba(15, 23, 42, 0.08)',
+        'glass-dark': '0 8px 32px 0 rgba(0, 0, 0, 0.35)',
+        'glass-sm': '0 4px 16px 0 rgba(15, 23, 42, 0.06)',
+        'glass-xl': '0 20px 60px 0 rgba(15, 23, 42, 0.12)',
+      },
     },
   },
   plugins: [],
 }
+

@@ -6,7 +6,7 @@ import { Skeleton } from '../components/ui/Skeleton';
 import { EmptyState } from '../components/ui/EmptyState';
 import { CreateDocumentModal } from '../components/documents/CreateDocumentModal';
 import { PrintDocumentView } from '../components/documents/PrintDocumentView';
-import { FileText, Plus, Search, Filter, Printer, ArrowUpDown } from 'lucide-react';
+import { FileText, Plus, Search, Filter, Printer, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 
 export const DocumentsPage: React.FC = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -69,12 +69,67 @@ export const DocumentsPage: React.FC = () => {
     fetchDocsData();
   };
 
-  const filteredDocs = documents.filter(
-    (d) =>
-      (d.documentNumber || '').toLowerCase().includes(search.toLowerCase()) ||
-      (d.clientName || '').toLowerCase().includes(search.toLowerCase()) ||
-      (d.fileCode || '').toLowerCase().includes(search.toLowerCase())
-  );
+  type DocSortCol = 'doc_no' | 'type' | 'file_id' | 'client' | 'date' | 'total';
+  const [sortCol, setSortCol] = useState<DocSortCol>('date');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+
+  const handleColumnSort = (col: DocSortCol) => {
+    if (sortCol === col) {
+      setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortCol(col);
+      setSortDir('asc');
+    }
+  };
+
+  const filteredDocs = documents
+    .filter(
+      (d) =>
+        (d.documentNumber || '').toLowerCase().includes(search.toLowerCase()) ||
+        (d.clientName || '').toLowerCase().includes(search.toLowerCase()) ||
+        (d.fileCode || '').toLowerCase().includes(search.toLowerCase())
+    )
+    .sort((a, b) => {
+      let aVal: any = '';
+      let bVal: any = '';
+
+      switch (sortCol) {
+        case 'doc_no':
+          aVal = a.documentNumber || '';
+          bVal = b.documentNumber || '';
+          break;
+        case 'type':
+          aVal = a.documentType || '';
+          bVal = b.documentType || '';
+          break;
+        case 'file_id':
+          aVal = a.fileCode || '';
+          bVal = b.fileCode || '';
+          break;
+        case 'client':
+          aVal = a.clientName || '';
+          bVal = b.clientName || '';
+          break;
+        case 'total':
+          aVal = a.total || 0;
+          bVal = b.total || 0;
+          break;
+        case 'date':
+        default:
+          aVal = a.fileDate || '';
+          bVal = b.fileDate || '';
+          break;
+      }
+
+      if (typeof aVal === 'string') {
+        aVal = aVal.toLowerCase();
+        bVal = bVal.toLowerCase();
+      }
+
+      if (aVal < bVal) return sortDir === 'asc' ? -1 : 1;
+      if (aVal > bVal) return sortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
 
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -92,13 +147,13 @@ export const DocumentsPage: React.FC = () => {
         <div className="flex flex-wrap gap-2.5">
           <button
             onClick={() => handleOpenCreateModal('Invoice')}
-            className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-semibold flex items-center gap-2 shadow-lg shadow-brand-600/20 transition-all"
+            className="px-4 py-2 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white rounded-xl text-xs font-extrabold flex items-center gap-2 shadow-lg shadow-brand-500/25 transition-all border border-white/20"
           >
             <Plus className="w-4 h-4" /> Create Invoice
           </button>
           <button
             onClick={() => handleOpenCreateModal('Debit_Note')}
-            className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold flex items-center gap-2 shadow-lg shadow-rose-600/20 transition-all"
+            className="px-4 py-2 bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white rounded-xl text-xs font-extrabold flex items-center gap-2 shadow-lg shadow-rose-500/25 transition-all border border-white/20"
           >
             <Plus className="w-4 h-4" /> Create Debit Note
           </button>
@@ -106,7 +161,7 @@ export const DocumentsPage: React.FC = () => {
       </div>
 
       {/* Filter Box */}
-      <form onSubmit={handleFilterSubmit} className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm space-y-4">
+      <form onSubmit={handleFilterSubmit} className="glass-panel p-5 rounded-3xl space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           <div>
             <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">Date From</label>
@@ -114,7 +169,7 @@ export const DocumentsPage: React.FC = () => {
               type="date"
               value={filters.dateFrom}
               onChange={(e) => setFilters({ ...filters, dateFrom: e.target.value })}
-              className="w-full px-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none dark:text-white"
+              className="w-full px-3 py-1.5 text-xs glass-input rounded-xl focus:outline-none dark:text-white"
             />
           </div>
 
@@ -124,7 +179,7 @@ export const DocumentsPage: React.FC = () => {
               type="date"
               value={filters.dateTo}
               onChange={(e) => setFilters({ ...filters, dateTo: e.target.value })}
-              className="w-full px-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none dark:text-white"
+              className="w-full px-3 py-1.5 text-xs glass-input rounded-xl focus:outline-none dark:text-white"
             />
           </div>
 
@@ -133,7 +188,7 @@ export const DocumentsPage: React.FC = () => {
             <select
               value={filters.documentType}
               onChange={(e) => setFilters({ ...filters, documentType: e.target.value })}
-              className="w-full px-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none dark:text-white"
+              className="w-full px-3 py-1.5 text-xs glass-input rounded-xl focus:outline-none dark:text-white"
             >
               <option value="">All Types</option>
               <option value="invoice">Invoice</option>
@@ -148,7 +203,7 @@ export const DocumentsPage: React.FC = () => {
               placeholder="Search client..."
               value={filters.clientName}
               onChange={(e) => setFilters({ ...filters, clientName: e.target.value })}
-              className="w-full px-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none dark:text-white"
+              className="w-full px-3 py-1.5 text-xs glass-input rounded-xl focus:outline-none dark:text-white"
             />
           </div>
 
@@ -157,7 +212,7 @@ export const DocumentsPage: React.FC = () => {
             <select
               value={filters.sort}
               onChange={(e) => setFilters({ ...filters, sort: e.target.value })}
-              className="w-full px-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none dark:text-white font-semibold text-brand-600 dark:text-brand-400"
+              className="w-full px-3 py-1.5 text-xs glass-input rounded-xl focus:outline-none dark:text-white font-semibold text-brand-600 dark:text-brand-400"
             >
               <option value="newest">Newest First</option>
               <option value="oldest">Oldest First</option>
@@ -172,7 +227,7 @@ export const DocumentsPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex justify-between items-center pt-2 border-t border-slate-100 dark:border-slate-700/60">
+        <div className="flex justify-between items-center pt-2 border-t border-slate-900/10 dark:border-white/10">
           <div className="relative w-64">
             <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
@@ -180,13 +235,13 @@ export const DocumentsPage: React.FC = () => {
               placeholder="Search documents table..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-8 pr-3 py-1 text-xs bg-slate-100 dark:bg-slate-700/40 border border-slate-200 dark:border-slate-600 rounded-lg focus:outline-none dark:text-white"
+              className="w-full pl-8 pr-3 py-1.5 text-xs glass-input rounded-xl focus:outline-none dark:text-white"
             />
           </div>
 
           <button
             type="submit"
-            className="px-4 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow"
+            className="px-4 py-1.5 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-all shadow-lg shadow-brand-500/20 border border-white/20"
           >
             <Filter className="w-3.5 h-3.5" /> Apply Filters
           </button>
@@ -194,28 +249,46 @@ export const DocumentsPage: React.FC = () => {
       </form>
 
       {/* Documents Table */}
-      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm overflow-hidden">
+      <div className="glass-panel rounded-3xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-100/70 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 font-bold uppercase border-b border-slate-200 dark:border-slate-700">
+            <thead className="bg-white/30 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-extrabold uppercase border-b border-slate-200/50 dark:border-slate-700/50 backdrop-blur-sm select-none">
               <tr>
-                <th className="p-4 cursor-pointer hover:text-brand-600" onClick={() => setFilters({ ...filters, sort: 'doc_no' })}>
-                  <div className="flex items-center gap-1">Document No <ArrowUpDown className="w-3 h-3" /></div>
+                <th className="p-4 cursor-pointer hover:text-brand-600" onClick={() => handleColumnSort('doc_no')}>
+                  <div className="flex items-center gap-1.5">
+                    <span>Document No</span>
+                    {sortCol === 'doc_no' ? (sortDir === 'asc' ? <ArrowUp className="w-3 h-3 text-brand-600 dark:text-brand-400" /> : <ArrowDown className="w-3 h-3 text-brand-600 dark:text-brand-400" />) : <ArrowUpDown className="w-3 h-3 text-slate-400 opacity-60" />}
+                  </div>
                 </th>
-                <th className="p-4 cursor-pointer hover:text-brand-600" onClick={() => setFilters({ ...filters, sort: 'type' })}>
-                  <div className="flex items-center gap-1">Type <ArrowUpDown className="w-3 h-3" /></div>
+                <th className="p-4 cursor-pointer hover:text-brand-600" onClick={() => handleColumnSort('type')}>
+                  <div className="flex items-center gap-1.5">
+                    <span>Type</span>
+                    {sortCol === 'type' ? (sortDir === 'asc' ? <ArrowUp className="w-3 h-3 text-brand-600 dark:text-brand-400" /> : <ArrowDown className="w-3 h-3 text-brand-600 dark:text-brand-400" />) : <ArrowUpDown className="w-3 h-3 text-slate-400 opacity-60" />}
+                  </div>
                 </th>
-                <th className="p-4 cursor-pointer hover:text-brand-600" onClick={() => setFilters({ ...filters, sort: 'file_id' })}>
-                  <div className="flex items-center gap-1">File ID <ArrowUpDown className="w-3 h-3" /></div>
+                <th className="p-4 cursor-pointer hover:text-brand-600" onClick={() => handleColumnSort('file_id')}>
+                  <div className="flex items-center gap-1.5">
+                    <span>File ID</span>
+                    {sortCol === 'file_id' ? (sortDir === 'asc' ? <ArrowUp className="w-3 h-3 text-brand-600 dark:text-brand-400" /> : <ArrowDown className="w-3 h-3 text-brand-600 dark:text-brand-400" />) : <ArrowUpDown className="w-3 h-3 text-slate-400 opacity-60" />}
+                  </div>
                 </th>
-                <th className="p-4 cursor-pointer hover:text-brand-600" onClick={() => setFilters({ ...filters, sort: 'client' })}>
-                  <div className="flex items-center gap-1">Client Name <ArrowUpDown className="w-3 h-3" /></div>
+                <th className="p-4 cursor-pointer hover:text-brand-600" onClick={() => handleColumnSort('client')}>
+                  <div className="flex items-center gap-1.5">
+                    <span>Client Name</span>
+                    {sortCol === 'client' ? (sortDir === 'asc' ? <ArrowUp className="w-3 h-3 text-brand-600 dark:text-brand-400" /> : <ArrowDown className="w-3 h-3 text-brand-600 dark:text-brand-400" />) : <ArrowUpDown className="w-3 h-3 text-slate-400 opacity-60" />}
+                  </div>
                 </th>
-                <th className="p-4 cursor-pointer hover:text-brand-600" onClick={() => setFilters({ ...filters, sort: 'date' })}>
-                  <div className="flex items-center gap-1">File Date <ArrowUpDown className="w-3 h-3" /></div>
+                <th className="p-4 cursor-pointer hover:text-brand-600" onClick={() => handleColumnSort('date')}>
+                  <div className="flex items-center gap-1.5">
+                    <span>File Date</span>
+                    {sortCol === 'date' ? (sortDir === 'asc' ? <ArrowUp className="w-3 h-3 text-brand-600 dark:text-brand-400" /> : <ArrowDown className="w-3 h-3 text-brand-600 dark:text-brand-400" />) : <ArrowUpDown className="w-3 h-3 text-slate-400 opacity-60" />}
+                  </div>
                 </th>
-                <th className="p-4 text-right cursor-pointer hover:text-brand-600" onClick={() => setFilters({ ...filters, sort: 'highest' })}>
-                  <div className="flex items-center justify-end gap-1">Total (TSH) <ArrowUpDown className="w-3 h-3" /></div>
+                <th className="p-4 text-right cursor-pointer hover:text-brand-600" onClick={() => handleColumnSort('total')}>
+                  <div className="flex items-center justify-end gap-1.5">
+                    <span>Total (TSH)</span>
+                    {sortCol === 'total' ? (sortDir === 'asc' ? <ArrowUp className="w-3 h-3 text-brand-600 dark:text-brand-400" /> : <ArrowDown className="w-3 h-3 text-brand-600 dark:text-brand-400" />) : <ArrowUpDown className="w-3 h-3 text-slate-400 opacity-60" />}
+                  </div>
                 </th>
                 <th className="p-4 text-center">Action</th>
               </tr>
@@ -254,7 +327,7 @@ export const DocumentsPage: React.FC = () => {
                 filteredDocs.slice(0, visibleCount).map((doc) => {
                   const isInvoice = doc.documentType.toLowerCase().includes('invoice');
                   return (
-                    <tr key={doc.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-700/30 transition-colors">
+                    <tr key={doc.id} className="hover:bg-white/40 dark:hover:bg-slate-800/40 transition-all duration-200">
                       <td className="p-4 font-mono font-bold text-slate-900 dark:text-white">
                         {doc.documentNumber}
                       </td>
@@ -274,7 +347,7 @@ export const DocumentsPage: React.FC = () => {
                       <td className="p-4 text-center">
                         <button
                           onClick={() => handlePrintClick(doc.id)}
-                          className="px-3 py-1.5 bg-slate-100 dark:bg-slate-700 hover:bg-brand-50 dark:hover:bg-brand-950/50 hover:text-brand-600 dark:hover:text-brand-400 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 transition-colors"
+                          className="px-3 py-1.5 bg-slate-900/5 dark:bg-white/5 hover:bg-brand-500/10 dark:hover:bg-brand-500/20 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold inline-flex items-center gap-1.5 transition-all border border-slate-900/10 dark:border-white/10 backdrop-blur-sm"
                         >
                           <Printer className="w-3.5 h-3.5" /> Print
                         </button>
@@ -289,7 +362,7 @@ export const DocumentsPage: React.FC = () => {
 
         {/* Load More Pagination Bar */}
         {filteredDocs.length > 0 && (
-          <div className="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+          <div className="p-4 border-t border-slate-900/10 dark:border-white/10 bg-slate-900/[0.02] dark:bg-white/[0.02] backdrop-blur-sm flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
             <span className="text-slate-500 dark:text-slate-400 font-medium">
               Showing <strong className="text-slate-900 dark:text-white">{Math.min(visibleCount, filteredDocs.length)}</strong> of <strong className="text-slate-900 dark:text-white">{filteredDocs.length}</strong> documents
             </span>
@@ -298,13 +371,13 @@ export const DocumentsPage: React.FC = () => {
               <div className="flex gap-2">
                 <button
                   onClick={() => setVisibleCount((prev) => prev + 25)}
-                  className="px-4 py-1.5 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-lg shadow transition-colors"
+                  className="px-4 py-1.5 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-brand-500/20 transition-all border border-white/20"
                 >
                   Load More Rows (+25)
                 </button>
                 <button
                   onClick={() => setVisibleCount(filteredDocs.length)}
-                  className="px-3 py-1.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold rounded-lg transition-colors"
+                  className="px-3 py-1.5 bg-slate-900/5 dark:bg-white/5 hover:bg-slate-900/10 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 font-bold rounded-xl transition-all border border-slate-900/10 dark:border-white/10 backdrop-blur-sm"
                 >
                   Show All ({filteredDocs.length})
                 </button>
@@ -331,3 +404,4 @@ export const DocumentsPage: React.FC = () => {
     </div>
   );
 };
+
