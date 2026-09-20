@@ -19,10 +19,16 @@ public class SummaryService {
 
     private final DocumentRepository documentRepository;
     private final DocumentItemRepository documentItemRepository;
+    private final com.chimba.repository.PaymentRepository paymentRepository;
 
-    public SummaryService(DocumentRepository documentRepository, DocumentItemRepository documentItemRepository) {
+    public SummaryService(
+            DocumentRepository documentRepository,
+            DocumentItemRepository documentItemRepository,
+            com.chimba.repository.PaymentRepository paymentRepository
+    ) {
         this.documentRepository = documentRepository;
         this.documentItemRepository = documentItemRepository;
+        this.paymentRepository = paymentRepository;
     }
 
     public Map<String, Object> getFinancialSummary(
@@ -47,11 +53,24 @@ public class SummaryService {
                 .map(Document::getTotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+        BigDecimal overpaymentTotal = BigDecimal.ZERO;
+        for (Document doc : filteredDocs) {
+            BigDecimal paidSum = paymentRepository.sumPaidAmountByDocumentId(doc.getId());
+            if (paidSum != null) {
+                BigDecimal docTotal = doc.getTotal() != null ? doc.getTotal() : BigDecimal.ZERO;
+                BigDecimal diff = paidSum.subtract(docTotal);
+                if (diff.compareTo(BigDecimal.ZERO) > 0) {
+                    overpaymentTotal = overpaymentTotal.add(diff);
+                }
+            }
+        }
+
         Map<String, Object> kpis = new HashMap<>();
         kpis.put("invoiceCount", invoiceCount);
         kpis.put("invoiceTotal", invoiceTotal);
         kpis.put("debitCount", debitCount);
         kpis.put("debitTotal", debitTotal);
+        kpis.put("overpaymentTotal", overpaymentTotal);
 
         List<Object[]> rawItems = documentItemRepository.getItemSummaries(df, dt, clientId, t, fn);
         List<ItemSummaryDto> itemSummaries = new ArrayList<>();

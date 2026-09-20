@@ -19,16 +19,6 @@ export const Header: React.FC<HeaderProps> = () => {
       </div>
 
       <div className="flex items-center gap-3">
-        {/* Search Input Quick */}
-        <div className="relative hidden md:block w-64">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search system..."
-            className="w-full pl-9 pr-4 py-1.5 text-xs glass-input rounded-xl focus:outline-none dark:text-white transition-all shadow-inner"
-          />
-        </div>
-
         {/* Theme Toggler */}
         <button
           onClick={toggleTheme}

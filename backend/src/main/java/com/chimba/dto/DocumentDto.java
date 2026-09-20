@@ -25,7 +25,8 @@ public class DocumentDto {
     private BigDecimal total;
     private BigDecimal paidAmount;
     private BigDecimal balance;
-    private String status; // UNPAID, PARTIALLY_PAID, PAID
+    private BigDecimal overpayment; // Excess payments collected above document total
+    private String status; // UNPAID, PARTIALLY_PAID, PAID, OVERPAID
     private Integer paymentsCount = 0;
     private List<PaymentDto> paymentHistory;
     private LocalDateTime createdAt;
@@ -98,6 +99,9 @@ public class DocumentDto {
 
     public BigDecimal getBalance() { return balance; }
     public void setBalance(BigDecimal balance) { this.balance = balance; }
+
+    public BigDecimal getOverpayment() { return overpayment; }
+    public void setOverpayment(BigDecimal overpayment) { this.overpayment = overpayment; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }

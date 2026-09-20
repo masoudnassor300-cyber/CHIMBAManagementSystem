@@ -57,6 +57,28 @@ public class DocumentService {
         this.paymentRepository = paymentRepository;
     }
 
+    private static int naturalCompare(String s1, String s2) {
+        if (s1 == null) return s2 == null ? 0 : -1;
+        if (s2 == null) return 1;
+        String[] p1 = s1.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
+        String[] p2 = s2.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
+        int len = Math.min(p1.length, p2.length);
+        for (int i = 0; i < len; i++) {
+            if (!p1[i].equalsIgnoreCase(p2[i])) {
+                if (Character.isDigit(p1[i].charAt(0)) && Character.isDigit(p2[i].charAt(0))) {
+                    try {
+                        java.math.BigInteger n1 = new java.math.BigInteger(p1[i]);
+                        java.math.BigInteger n2 = new java.math.BigInteger(p2[i]);
+                        int comp = n1.compareTo(n2);
+                        if (comp != 0) return comp;
+                    } catch (Exception ignored) {}
+                }
+                return p1[i].compareToIgnoreCase(p2[i]);
+            }
+        }
+        return Integer.compare(p1.length, p2.length);
+    }
+
     public List<DocumentDto> filterDocuments(
             String dateFrom, String dateTo, String docType, String clientName, String sort
     ) {
@@ -70,13 +92,16 @@ public class DocumentService {
         if (sort != null) {
             switch (sort.toLowerCase()) {
                 case "doc_no":
-                    docs.sort(Comparator.comparing(Document::getDocumentNumber, Comparator.nullsLast(String::compareTo)));
+                    docs.sort((d1, d2) -> naturalCompare(d1.getDocumentNumber(), d2.getDocumentNumber()));
                     break;
                 case "type":
                     docs.sort(Comparator.comparing(Document::getDocumentType, Comparator.nullsLast(String::compareTo)));
                     break;
                 case "file_id":
-                    docs.sort(Comparator.comparing(d -> d.getCargoFile() != null ? d.getCargoFile().getFileId() : "", String::compareTo));
+                    docs.sort((d1, d2) -> naturalCompare(
+                        d1.getCargoFile() != null ? d1.getCargoFile().getFileId() : "",
+                        d2.getCargoFile() != null ? d2.getCargoFile().getFileId() : ""
+                    ));
                     break;
                 case "client":
                     docs.sort(Comparator.comparing(d -> d.getClient() != null ? d.getClient().getName() : "", String::compareTo));
@@ -225,14 +250,20 @@ public class DocumentService {
         dto.setPaidAmount(paidSum);
 
         BigDecimal balance = docTotal.subtract(paidSum);
+        BigDecimal overpayment = BigDecimal.ZERO;
+
         if (balance.compareTo(BigDecimal.ZERO) < 0) {
+            overpayment = balance.abs();
             balance = BigDecimal.ZERO;
         }
         dto.setBalance(balance);
+        dto.setOverpayment(overpayment);
 
         if (paidSum.compareTo(BigDecimal.ZERO) == 0) {
             dto.setStatus("UNPAID");
-        } else if (paidSum.compareTo(docTotal) >= 0) {
+        } else if (paidSum.compareTo(docTotal) > 0) {
+            dto.setStatus("OVERPAID");
+        } else if (paidSum.compareTo(docTotal) == 0) {
             dto.setStatus("PAID");
         } else {
             dto.setStatus("PARTIALLY_PAID");
@@ -285,5 +316,61 @@ public class DocumentService {
         }
 
         return dto;
+    }
+
+    @Transactional
+    public DocumentDto updateDocument(Integer id, DocumentCreateRequest request) {
+        Document document = documentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Document not found with id: " + id));
+
+        if (request.getFileDate() != null && !request.getFileDate().isEmpty()) {
+            document.setFileDate(LocalDate.parse(request.getFileDate()));
+        }
+        if (request.getTransportType() != null) {
+            document.setTransportType(request.getTransportType());
+        }
+
+        if (request.getClientId() != null) {
+            Client client = clientRepository.findById(request.getClientId())
+                    .orElseThrow(() -> new RuntimeException("Client not found with id: " + request.getClientId()));
+            document.setClient(client);
+        }
+
+        if (request.getItems() != null && !request.getItems().isEmpty()) {
+            documentItemRepository.deleteByDocumentId(id);
+
+            BigDecimal totalAmount = BigDecimal.ZERO;
+            List<DocumentItem> validItems = new ArrayList<>();
+
+            for (DocumentCreateRequest.ItemInput itemInput : request.getItems()) {
+                BigDecimal qty = itemInput.getQty() != null ? itemInput.getQty() : BigDecimal.ZERO;
+                BigDecimal price = itemInput.getUnitPrice() != null ? itemInput.getUnitPrice() : BigDecimal.ZERO;
+
+                if (qty.compareTo(BigDecimal.ZERO) <= 0 || price.compareTo(BigDecimal.ZERO) <= 0) {
+                    continue;
+                }
+
+                BigDecimal lineTotal = qty.multiply(price);
+                totalAmount = totalAmount.add(lineTotal);
+
+                DocumentItem item = new DocumentItem();
+                item.setDocument(document);
+                item.setItemName(itemInput.getItemName());
+                item.setQty(qty);
+                item.setUnitPrice(price);
+                item.setLineTotal(lineTotal);
+                validItems.add(item);
+            }
+
+            if (!validItems.isEmpty()) {
+                document.setSubtotal(totalAmount);
+                document.setVat(BigDecimal.ZERO);
+                document.setTotal(totalAmount);
+                document.setItems(validItems);
+            }
+        }
+
+        Document updated = documentRepository.save(document);
+        return getDocumentById(updated.getId());
     }
 }

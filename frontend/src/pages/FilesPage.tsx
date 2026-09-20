@@ -4,7 +4,7 @@ import { CargoFile, Client } from '../types';
 import { Skeleton } from '../components/ui/Skeleton';
 import { EmptyState } from '../components/ui/EmptyState';
 import { CreateFileModal } from '../components/files/CreateFileModal';
-import { FolderKanban, Search, Plus, Filter, RotateCcw, Calendar, FileCode, Ship } from 'lucide-react';
+import { FolderKanban, Search, Plus, Filter, RotateCcw, Calendar, FileCode, Ship, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 
 export const FilesPage: React.FC = () => {
   const [files, setFiles] = useState<CargoFile[]>([]);
@@ -22,8 +22,20 @@ export const FilesPage: React.FC = () => {
   });
 
   const [search, setSearch] = useState('');
-
   const [visibleCount, setVisibleCount] = useState(25);
+
+  type FileSortCol = 'fileId' | 'clientName' | 'awbBl' | 'jobNumber' | 'fileDate';
+  const [sortCol, setSortCol] = useState<FileSortCol>('fileId');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+
+  const handleSort = (col: FileSortCol) => {
+    if (sortCol === col) {
+      setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortCol(col);
+      setSortDir('asc');
+    }
+  };
 
   const fetchFilesData = async (currentFilters = filters) => {
     try {
@@ -59,13 +71,29 @@ export const FilesPage: React.FC = () => {
     fetchFilesData();
   };
 
-  const filteredFiles = files.filter(
-    (f) =>
-      f.fileId.toLowerCase().includes(search.toLowerCase()) ||
-      f.clientName.toLowerCase().includes(search.toLowerCase()) ||
-      (f.jobNumber && f.jobNumber.toLowerCase().includes(search.toLowerCase())) ||
-      (f.awbBl && f.awbBl.toLowerCase().includes(search.toLowerCase()))
-  );
+  const filteredFiles = files
+    .filter(
+      (f) =>
+        f.fileId.toLowerCase().includes(search.toLowerCase()) ||
+        f.clientName.toLowerCase().includes(search.toLowerCase()) ||
+        (f.jobNumber && f.jobNumber.toLowerCase().includes(search.toLowerCase())) ||
+        (f.awbBl && f.awbBl.toLowerCase().includes(search.toLowerCase()))
+    )
+    .sort((a, b) => {
+      let res = 0;
+      if (sortCol === 'fileId') {
+        res = String(a.fileId || '').localeCompare(String(b.fileId || ''), undefined, { numeric: true, sensitivity: 'base' });
+      } else if (sortCol === 'fileDate') {
+        res = String(a.fileDate || '').localeCompare(String(b.fileDate || ''));
+      } else if (sortCol === 'clientName') {
+        res = String(a.clientName || '').localeCompare(String(b.clientName || ''), undefined, { numeric: true, sensitivity: 'base' });
+      } else if (sortCol === 'jobNumber') {
+        res = String(a.jobNumber || '').localeCompare(String(b.jobNumber || ''), undefined, { numeric: true, sensitivity: 'base' });
+      } else if (sortCol === 'awbBl') {
+        res = String(a.awbBl || '').localeCompare(String(b.awbBl || ''), undefined, { numeric: true, sensitivity: 'base' });
+      }
+      return sortDir === 'asc' ? res : -res;
+    });
 
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -183,13 +211,38 @@ export const FilesPage: React.FC = () => {
       <div className="glass-panel rounded-3xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-900/5 dark:bg-white/5 text-slate-600 dark:text-slate-300 font-extrabold uppercase border-b border-slate-900/10 dark:border-white/10 backdrop-blur-sm">
+            <thead className="bg-slate-900/5 dark:bg-white/5 text-slate-600 dark:text-slate-300 font-extrabold uppercase border-b border-slate-900/10 dark:border-white/10 backdrop-blur-sm select-none">
               <tr>
-                <th className="p-4">File ID</th>
-                <th className="p-4">Client Name</th>
-                <th className="p-4">AWB / BL</th>
-                <th className="p-4">Job Number</th>
-                <th className="p-4">File Date</th>
+                <th className="p-4 cursor-pointer hover:text-brand-600" onClick={() => handleSort('fileId')}>
+                  <div className="flex items-center gap-1.5">
+                    <span>File ID</span>
+                    {sortCol === 'fileId' ? (sortDir === 'asc' ? <ArrowUp className="w-3 h-3 text-brand-600 dark:text-brand-400" /> : <ArrowDown className="w-3 h-3 text-brand-600 dark:text-brand-400" />) : <ArrowUpDown className="w-3 h-3 text-slate-400 opacity-60" />}
+                  </div>
+                </th>
+                <th className="p-4 cursor-pointer hover:text-brand-600" onClick={() => handleSort('clientName')}>
+                  <div className="flex items-center gap-1.5">
+                    <span>Client Name</span>
+                    {sortCol === 'clientName' ? (sortDir === 'asc' ? <ArrowUp className="w-3 h-3 text-brand-600 dark:text-brand-400" /> : <ArrowDown className="w-3 h-3 text-brand-600 dark:text-brand-400" />) : <ArrowUpDown className="w-3 h-3 text-slate-400 opacity-60" />}
+                  </div>
+                </th>
+                <th className="p-4 cursor-pointer hover:text-brand-600" onClick={() => handleSort('awbBl')}>
+                  <div className="flex items-center gap-1.5">
+                    <span>AWB / BL</span>
+                    {sortCol === 'awbBl' ? (sortDir === 'asc' ? <ArrowUp className="w-3 h-3 text-brand-600 dark:text-brand-400" /> : <ArrowDown className="w-3 h-3 text-brand-600 dark:text-brand-400" />) : <ArrowUpDown className="w-3 h-3 text-slate-400 opacity-60" />}
+                  </div>
+                </th>
+                <th className="p-4 cursor-pointer hover:text-brand-600" onClick={() => handleSort('jobNumber')}>
+                  <div className="flex items-center gap-1.5">
+                    <span>Job Number</span>
+                    {sortCol === 'jobNumber' ? (sortDir === 'asc' ? <ArrowUp className="w-3 h-3 text-brand-600 dark:text-brand-400" /> : <ArrowDown className="w-3 h-3 text-brand-600 dark:text-brand-400" />) : <ArrowUpDown className="w-3 h-3 text-slate-400 opacity-60" />}
+                  </div>
+                </th>
+                <th className="p-4 cursor-pointer hover:text-brand-600" onClick={() => handleSort('fileDate')}>
+                  <div className="flex items-center gap-1.5">
+                    <span>File Date</span>
+                    {sortCol === 'fileDate' ? (sortDir === 'asc' ? <ArrowUp className="w-3 h-3 text-brand-600 dark:text-brand-400" /> : <ArrowDown className="w-3 h-3 text-brand-600 dark:text-brand-400" />) : <ArrowUpDown className="w-3 h-3 text-slate-400 opacity-60" />}
+                  </div>
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-900/5 dark:divide-white/5 font-medium">

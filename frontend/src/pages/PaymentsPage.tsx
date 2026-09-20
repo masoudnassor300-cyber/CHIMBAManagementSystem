@@ -26,6 +26,7 @@ export const PaymentsPage: React.FC = () => {
   const [totalInvoicesValue, setTotalInvoicesValue] = useState<number>(0);
   const [totalDebitNotesValue, setTotalDebitNotesValue] = useState<number>(0);
   const [totalCollectedValue, setTotalCollectedValue] = useState<number>(0);
+  const [totalOverpaymentValue, setTotalOverpaymentValue] = useState<number>(0);
   const [recentPayments, setRecentPayments] = useState<PaymentRecord[]>([]);
 
   const [loading, setLoading] = useState(true);
@@ -44,6 +45,7 @@ export const PaymentsPage: React.FC = () => {
       setTotalInvoicesValue(data.totalInvoicesValue || 0);
       setTotalDebitNotesValue(data.totalDebitNotesValue || 0);
       setTotalCollectedValue(data.totalCollectedValue || 0);
+      setTotalOverpaymentValue(data.totalOverpaymentValue || 0);
       setDocuments(data.documents || []);
       setRecentPayments(data.recentPayments || []);
       setVisibleCount(25);
@@ -93,7 +95,7 @@ export const PaymentsPage: React.FC = () => {
       </div>
 
       {/* KPI Highlight Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard
           title="Outstanding To Collect"
           value={`TSH ${totalLeftToCollect.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
@@ -107,6 +109,13 @@ export const PaymentsPage: React.FC = () => {
           icon={CheckCircle2}
           colorScheme="emerald"
           subtitle="Total recorded collections"
+        />
+        <StatCard
+          title="Overpayment / Credit Total"
+          value={`TSH ${totalOverpaymentValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
+          icon={TrendingUp}
+          colorScheme="amber"
+          subtitle="Excess payments collected"
         />
         <StatCard
           title="Invoices Billed Total"
@@ -237,6 +246,7 @@ export const PaymentsPage: React.FC = () => {
               ) : (
                 filteredDocs.slice(0, visibleCount).map((doc) => {
                   const isInvoice = doc.documentType.toLowerCase().includes('invoice');
+                  const isOverpaid = doc.status === 'OVERPAID' || (doc.overpayment && doc.overpayment > 0);
                   const isFullyPaid = doc.status === 'PAID' || doc.balance <= 0;
                   const isPartiallyPaid = doc.status === 'PARTIALLY_PAID' || (doc.paidAmount > 0 && doc.balance > 0);
 
@@ -264,7 +274,11 @@ export const PaymentsPage: React.FC = () => {
                         {doc.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </td>
                       <td className="p-4 text-center">
-                        {isFullyPaid ? (
+                        {isOverpaid ? (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20 backdrop-blur-sm" title={`Overpayment Credit: TSH ${doc.overpayment?.toLocaleString()}`}>
+                            <CheckCircle2 className="w-3.5 h-3.5 text-amber-500" /> Overpaid
+                          </span>
+                        ) : isFullyPaid ? (
                           <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
                             <CheckCircle2 className="w-3.5 h-3.5" /> Paid
                           </span>
@@ -280,14 +294,12 @@ export const PaymentsPage: React.FC = () => {
                       </td>
                       <td className="p-4 text-center">
                         <div className="flex items-center justify-center gap-1.5">
-                          {!isFullyPaid && (
-                            <button
-                              onClick={() => setSelectedRecordDoc(doc)}
-                              className="px-2.5 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-bold inline-flex items-center gap-1 transition-all shadow-md shadow-emerald-500/20 border border-white/20"
-                            >
-                              <Plus className="w-3.5 h-3.5" /> Record
-                            </button>
-                          )}
+                          <button
+                            onClick={() => setSelectedRecordDoc(doc)}
+                            className="px-2.5 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-bold inline-flex items-center gap-1 transition-all shadow-md shadow-emerald-500/20 border border-white/20"
+                          >
+                            <Plus className="w-3.5 h-3.5" /> Record
+                          </button>
                           <button
                             onClick={() => setSelectedHistoryDoc(doc)}
                             className="px-2.5 py-1.5 bg-slate-900/5 dark:bg-white/5 hover:bg-slate-900/10 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold inline-flex items-center gap-1 transition-all border border-slate-900/10 dark:border-white/10 backdrop-blur-sm"

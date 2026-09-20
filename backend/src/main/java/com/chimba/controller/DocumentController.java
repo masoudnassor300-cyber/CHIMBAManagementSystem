@@ -44,4 +44,14 @@ public class DocumentController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateDocument(@PathVariable Integer id, @RequestBody DocumentCreateRequest request) {
+        try {
+            DocumentDto updated = documentService.updateDocument(id, request);
+            return ResponseEntity.ok(updated);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 }

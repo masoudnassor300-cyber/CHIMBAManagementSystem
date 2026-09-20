@@ -7,7 +7,7 @@ import { EmptyState } from '../components/ui/EmptyState';
 import { CreateClientModal } from '../components/clients/CreateClientModal';
 import { Users, Search, Plus, Mail, Building, MapPin, Hash, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 
-type SortField = 'clientId' | 'name' | 'address' | 'city' | 'email' | 'tin' | 'fileCount';
+type SortField = 'clientId' | 'name' | 'tin' | 'fileCount';
 type SortOrder = 'asc' | 'desc';
 
 export const ClientsPage: React.FC = () => {
@@ -48,20 +48,20 @@ export const ClientsPage: React.FC = () => {
   };
 
   const sortedClients = [...clients].sort((a, b) => {
-    let aVal: any = a[sortField] || '';
-    let bVal: any = b[sortField] || '';
-
+    let res = 0;
     if (sortField === 'fileCount') {
-      aVal = a.fileCount || 0;
-      bVal = b.fileCount || 0;
-    } else if (typeof aVal === 'string') {
-      aVal = aVal.toLowerCase();
-      bVal = bVal.toLowerCase();
+      res = (a.fileCount || 0) - (b.fileCount || 0);
+    } else if (sortField === 'clientId') {
+      const aVal = String(a.clientId || '');
+      const bVal = String(b.clientId || '');
+      res = aVal.localeCompare(bVal, undefined, { numeric: true, sensitivity: 'base' });
+    } else {
+      const aVal = String(a[sortField] || '').toLowerCase();
+      const bVal = String(b[sortField] || '').toLowerCase();
+      res = aVal.localeCompare(bVal, undefined, { numeric: true, sensitivity: 'base' });
     }
 
-    if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
-    if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
-    return 0;
+    return sortOrder === 'asc' ? res : -res;
   });
 
   const renderSortIcon = (field: SortField) => {
@@ -128,23 +128,14 @@ export const ClientsPage: React.FC = () => {
                     {renderSortIcon('name')}
                   </div>
                 </th>
-                <th className="p-4 cursor-pointer hover:text-brand-600" onClick={() => handleSort('address')}>
-                  <div className="flex items-center gap-1.5">
-                    <span>Address</span>
-                    {renderSortIcon('address')}
-                  </div>
+                <th className="p-4">
+                  <span>Address</span>
                 </th>
-                <th className="p-4 cursor-pointer hover:text-brand-600" onClick={() => handleSort('city')}>
-                  <div className="flex items-center gap-1.5">
-                    <span>City</span>
-                    {renderSortIcon('city')}
-                  </div>
+                <th className="p-4">
+                  <span>City</span>
                 </th>
-                <th className="p-4 cursor-pointer hover:text-brand-600" onClick={() => handleSort('email')}>
-                  <div className="flex items-center gap-1.5">
-                    <span>Email</span>
-                    {renderSortIcon('email')}
-                  </div>
+                <th className="p-4">
+                  <span>Email</span>
                 </th>
                 <th className="p-4 cursor-pointer hover:text-brand-600" onClick={() => handleSort('tin')}>
                   <div className="flex items-center gap-1.5">

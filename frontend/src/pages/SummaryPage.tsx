@@ -258,9 +258,9 @@ export const SummaryPage: React.FC = () => {
       </form>
 
       {/* KPI Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {loading ? (
-          Array.from({ length: 4 }).map((_, idx) => <Skeleton key={idx} className="h-28 rounded-2xl" />)
+          Array.from({ length: 5 }).map((_, idx) => <Skeleton key={idx} className="h-28 rounded-2xl" />)
         ) : (
           <>
             <StatCard
@@ -290,6 +290,13 @@ export const SummaryPage: React.FC = () => {
               icon={BarChart3}
               colorScheme="rose"
               subtitle="Sum of debit note line items"
+            />
+            <StatCard
+              title="Overpayment / Credit Balance"
+              value={`TSH ${(summaryData?.kpi.overpaymentTotal || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+              icon={TrendingUp}
+              colorScheme="indigo"
+              subtitle="Excess payments collected"
             />
           </>
         )}

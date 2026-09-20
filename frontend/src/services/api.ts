@@ -70,11 +70,22 @@ export const createDocument = async (data: {
   return res.data;
 };
 
+export const updateDocument = async (id: number, data: {
+  fileDate?: string;
+  transportType?: string;
+  clientId?: number;
+  items?: { itemName: string; qty: number; unitPrice: number }[];
+}): Promise<Document> => {
+  const res = await api.put<Document>(`/documents/${id}`, data);
+  return res.data;
+};
+
 export interface PaymentsOverviewResponse {
   totalLeftToCollect: number;
   totalInvoicesValue: number;
   totalDebitNotesValue: number;
   totalCollectedValue: number;
+  totalOverpaymentValue?: number;
   documents: Document[];
   recentPayments?: PaymentRecord[];
 }

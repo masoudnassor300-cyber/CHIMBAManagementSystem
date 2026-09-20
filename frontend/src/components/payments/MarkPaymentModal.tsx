@@ -39,8 +39,8 @@ export const MarkPaymentModal: React.FC<MarkPaymentModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (paidAmount <= 0 || paidAmount > balanceLeft) {
-      setError(`Amount must be greater than 0 and cannot exceed remaining balance of TSH ${balanceLeft.toLocaleString()}`);
+    if (paidAmount <= 0) {
+      setError('Payment amount must be greater than 0.');
       return;
     }
 
@@ -64,6 +64,7 @@ export const MarkPaymentModal: React.FC<MarkPaymentModalProps> = ({
   };
 
   const isInvoice = document.documentType.toLowerCase().includes('invoice');
+  const excessAmount = Math.max(0, paidAmount - balanceLeft);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Record Payment Transaction" maxWidth="lg">
@@ -113,13 +114,18 @@ export const MarkPaymentModal: React.FC<MarkPaymentModalProps> = ({
           <input
             type="number"
             step="0.01"
-            max={balanceLeft}
             min={0.01}
             required
             value={paidAmount}
             onChange={(e) => setPaidAmount(Number(e.target.value))}
             className="w-full px-3.5 py-2 text-base font-bold glass-input rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none dark:text-white font-mono text-emerald-600 dark:text-emerald-400"
           />
+          {excessAmount > 0 && (
+            <p className="text-xs text-amber-600 dark:text-amber-400 font-bold mt-1 flex items-center gap-1">
+              <span>⚠️ Overpayment / Credit Balance:</span>
+              <span className="font-mono">+TSH {excessAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+            </p>
+          )}
         </div>
 
         {/* Date & Method Grid */}

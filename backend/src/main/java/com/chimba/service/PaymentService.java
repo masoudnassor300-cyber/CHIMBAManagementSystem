@@ -42,11 +42,13 @@ public class PaymentService {
         BigDecimal totalDebitNotes = BigDecimal.ZERO;
         BigDecimal totalCollected = BigDecimal.ZERO;
         BigDecimal totalOutstanding = BigDecimal.ZERO;
+        BigDecimal totalOverpayment = BigDecimal.ZERO;
 
         for (DocumentDto d : docDtos) {
             BigDecimal total = d.getTotal() != null ? d.getTotal() : BigDecimal.ZERO;
             BigDecimal paid = d.getPaidAmount() != null ? d.getPaidAmount() : BigDecimal.ZERO;
             BigDecimal bal = d.getBalance() != null ? d.getBalance() : BigDecimal.ZERO;
+            BigDecimal over = d.getOverpayment() != null ? d.getOverpayment() : BigDecimal.ZERO;
 
             if (d.getDocumentType() != null && d.getDocumentType().equalsIgnoreCase("invoice")) {
                 totalInvoices = totalInvoices.add(total);
@@ -56,6 +58,7 @@ public class PaymentService {
 
             totalCollected = totalCollected.add(paid);
             totalOutstanding = totalOutstanding.add(bal);
+            totalOverpayment = totalOverpayment.add(over);
         }
 
         List<Payment> recentPayments = paymentRepository.findAllByOrderByCreatedAtDesc();
@@ -80,6 +83,7 @@ public class PaymentService {
         response.put("totalInvoicesValue", totalInvoices);
         response.put("totalDebitNotesValue", totalDebitNotes);
         response.put("totalCollectedValue", totalCollected);
+        response.put("totalOverpaymentValue", totalOverpayment);
         response.put("documents", docDtos);
         response.put("recentPayments", recentDtos);
 
@@ -124,15 +128,6 @@ public class PaymentService {
         if (currentPaid == null) currentPaid = BigDecimal.ZERO;
 
         BigDecimal docTotal = doc.getTotal() != null ? doc.getTotal() : BigDecimal.ZERO;
-        BigDecimal currentBalance = docTotal.subtract(currentPaid);
-        if (currentBalance.compareTo(BigDecimal.ZERO) < 0) {
-            currentBalance = BigDecimal.ZERO;
-        }
-
-        if (request.getPaidAmount().compareTo(currentBalance) > 0) {
-            throw new RuntimeException("Payment amount (TSH " + request.getPaidAmount() + 
-                    ") exceeds remaining balance (TSH " + currentBalance + ")!");
-        }
 
         Payment payment = new Payment();
         payment.setDocument(doc);

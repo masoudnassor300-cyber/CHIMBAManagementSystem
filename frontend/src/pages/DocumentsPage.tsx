@@ -5,8 +5,9 @@ import { Badge } from '../components/ui/Badge';
 import { Skeleton } from '../components/ui/Skeleton';
 import { EmptyState } from '../components/ui/EmptyState';
 import { CreateDocumentModal } from '../components/documents/CreateDocumentModal';
+import { EditDocumentModal } from '../components/documents/EditDocumentModal';
 import { PrintDocumentView } from '../components/documents/PrintDocumentView';
-import { FileText, Plus, Search, Filter, Printer, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { FileText, Plus, Search, Filter, Printer, Edit3, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 
 export const DocumentsPage: React.FC = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -17,6 +18,8 @@ export const DocumentsPage: React.FC = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [modalInitialType, setModalInitialType] = useState<'Invoice' | 'Debit_Note'>('Invoice');
   const [printDocument, setPrintDocument] = useState<Document | null>(null);
+  const [editDocument, setEditDocument] = useState<Document | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   // Filters & Sorting state
   const [filters, setFilters] = useState({
@@ -64,6 +67,16 @@ export const DocumentsPage: React.FC = () => {
     }
   };
 
+  const handleEditClick = async (doc: Document) => {
+    try {
+      const fullDoc = await getDocumentById(doc.id);
+      setEditDocument(fullDoc);
+    } catch (err) {
+      setEditDocument(doc);
+    }
+    setIsEditModalOpen(true);
+  };
+
   const handleFilterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     fetchDocsData();
@@ -90,45 +103,30 @@ export const DocumentsPage: React.FC = () => {
         (d.fileCode || '').toLowerCase().includes(search.toLowerCase())
     )
     .sort((a, b) => {
-      let aVal: any = '';
-      let bVal: any = '';
-
+      let res = 0;
       switch (sortCol) {
         case 'doc_no':
-          aVal = a.documentNumber || '';
-          bVal = b.documentNumber || '';
+          res = (a.documentNumber || '').localeCompare(b.documentNumber || '', undefined, { numeric: true, sensitivity: 'base' });
           break;
         case 'type':
-          aVal = a.documentType || '';
-          bVal = b.documentType || '';
+          res = (a.documentType || '').localeCompare(b.documentType || '');
           break;
         case 'file_id':
-          aVal = a.fileCode || '';
-          bVal = b.fileCode || '';
+          res = (a.fileCode || '').localeCompare(b.fileCode || '', undefined, { numeric: true, sensitivity: 'base' });
           break;
         case 'client':
-          aVal = a.clientName || '';
-          bVal = b.clientName || '';
+          res = (a.clientName || '').localeCompare(b.clientName || '', undefined, { numeric: true, sensitivity: 'base' });
           break;
         case 'total':
-          aVal = a.total || 0;
-          bVal = b.total || 0;
+          res = (Number(a.total) || 0) - (Number(b.total) || 0);
           break;
         case 'date':
         default:
-          aVal = a.fileDate || '';
-          bVal = b.fileDate || '';
+          res = (a.fileDate || '').localeCompare(b.fileDate || '');
           break;
       }
 
-      if (typeof aVal === 'string') {
-        aVal = aVal.toLowerCase();
-        bVal = bVal.toLowerCase();
-      }
-
-      if (aVal < bVal) return sortDir === 'asc' ? -1 : 1;
-      if (aVal > bVal) return sortDir === 'asc' ? 1 : -1;
-      return 0;
+      return sortDir === 'asc' ? res : -res;
     });
 
   return (
@@ -345,12 +343,22 @@ export const DocumentsPage: React.FC = () => {
                         {doc.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </td>
                       <td className="p-4 text-center">
-                        <button
-                          onClick={() => handlePrintClick(doc.id)}
-                          className="px-3 py-1.5 bg-slate-900/5 dark:bg-white/5 hover:bg-brand-500/10 dark:hover:bg-brand-500/20 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold inline-flex items-center gap-1.5 transition-all border border-slate-900/10 dark:border-white/10 backdrop-blur-sm"
-                        >
-                          <Printer className="w-3.5 h-3.5" /> Print
-                        </button>
+                        <div className="flex items-center justify-center gap-1.5">
+                          <button
+                            onClick={() => handleEditClick(doc)}
+                            className="px-2.5 py-1.5 bg-brand-500/10 hover:bg-brand-500/20 text-brand-600 dark:text-brand-400 rounded-xl text-xs font-bold inline-flex items-center gap-1 transition-all border border-brand-500/20 backdrop-blur-sm"
+                            title="Edit Document"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" /> Edit
+                          </button>
+                          <button
+                            onClick={() => handlePrintClick(doc.id)}
+                            className="px-2.5 py-1.5 bg-slate-900/5 dark:bg-white/5 hover:bg-brand-500/10 dark:hover:bg-brand-500/20 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold inline-flex items-center gap-1 transition-all border border-slate-900/10 dark:border-white/10 backdrop-blur-sm"
+                            title="Print Document"
+                          >
+                            <Printer className="w-3.5 h-3.5" /> Print
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -392,6 +400,13 @@ export const DocumentsPage: React.FC = () => {
         onClose={() => setIsCreateModalOpen(false)}
         files={files}
         initialType={modalInitialType}
+        onSuccess={() => fetchDocsData()}
+      />
+
+      <EditDocumentModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        document={editDocument}
         onSuccess={() => fetchDocsData()}
       />
 

@@ -12,6 +12,7 @@ import java.util.List;
 @Repository
 public interface DocumentItemRepository extends JpaRepository<DocumentItem, Integer> {
     List<DocumentItem> findByDocumentId(Integer documentId);
+    void deleteByDocumentId(Integer documentId);
 
     @Query("SELECT di.itemName, " +
            "SUM(CASE WHEN LOWER(d.documentType) = 'invoice' THEN di.lineTotal ELSE 0 END), " +

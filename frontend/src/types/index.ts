@@ -69,7 +69,8 @@ export interface Document {
   total: number;
   paidAmount: number;
   balance: number;
-  status: 'UNPAID' | 'PARTIALLY_PAID' | 'PAID';
+  overpayment?: number;
+  status: 'UNPAID' | 'PARTIALLY_PAID' | 'PAID' | 'OVERPAID';
   paymentsCount?: number;
   paymentHistory?: PaymentRecord[];
   createdAt?: string;
@@ -123,6 +124,7 @@ export interface SummaryData {
     invoiceTotal: number;
     debitCount: number;
     debitTotal: number;
+    overpaymentTotal?: number;
   };
   items: ItemSummary[];
 }
